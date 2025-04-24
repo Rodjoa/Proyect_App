@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "699260621892",
+    "project_id": "towergarden-90aac",
+    "storage_bucket": "towergarden-90aac.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:699260621892:android:3c5131bd2842dbb4ee9811",
+        "android_client_info": {
+          "package_name": "com.example.tower_garden"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCLuFNFN0g7uArw7zJE7Y59sGP31dscNZM"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

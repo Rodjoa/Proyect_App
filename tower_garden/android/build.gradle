@@ -1,0 +1,41 @@
+buildscript {
+    ext.kotlin_version = '2.1.10'  // Nos aseguramos de usar la versión 1.8.0 de Kotlin
+    repositories {
+        google()
+        mavenCentral()
+    }
+    dependencies {
+        // Solo agregamos la dependencia para el complemento de Google Services
+        classpath 'com.google.gms:google-services:4.4.2'  // Asegúrate de usar la última versión
+        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"  // Plugin de Kotlin
+    }
+}
+
+
+
+allprojects {
+    repositories {
+        google()
+        mavenCentral()
+    }
+}
+
+// Cambiar directorio de compilación principal
+def newBuildDir = layout.buildDirectory.dir("../../build").get().asFile
+layout.buildDirectory.set(newBuildDir)
+
+// Cambiar directorio de compilación de los subproyectos
+subprojects { subproject ->
+    def subprojectBuildDir = new File(newBuildDir, subproject.name)
+    subproject.layout.buildDirectory.set(subprojectBuildDir)
+}
+
+// Forzar evaluación del módulo app antes de los subproyectos
+subprojects {
+    evaluationDependsOn(":app")
+}
+
+// Tarea clean
+tasks.register("clean", Delete) {
+    delete layout.buildDirectory.get().asFile
+}
