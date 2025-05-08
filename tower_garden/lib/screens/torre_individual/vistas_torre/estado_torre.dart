@@ -10,37 +10,8 @@ import 'package:tower_garden/screens/torre_individual/vistas_torre/nivel_agua.da
 // Se evalúa eliminar login por ahora (hasta que se despliegue en servidor firebase)
 
 //Se actualizan los datos al entrar a ESTADO TORRE
-class EstadoTorre extends StatefulWidget {
+class EstadoTorre extends StatelessWidget {
   const EstadoTorre({super.key});
-
-  @override
-  _EstadoTorreState createState() => _EstadoTorreState();
-}
-
-class _EstadoTorreState extends State<EstadoTorre> {
-  // Datos de los sensores (estado interno)
-  int _aguaValue = 10;
-  int _phValue = 7;
-  int _luzValue = 50;
-
-  @override
-  void initState() {
-    super.initState();
-    _cargarDatosSensores(); // Simulación: carga datos al iniciar
-    //Reemplazar _cargarDatosSensores() por una llamada al servidor
-  }
-
-  // Simula la obtención de datos (en un caso real, sería una API o hardware)
-  //Dentro de esta función tendría que implementar la recolección de los datos pidiéndolos al servidor local (por ahora)
-  void _cargarDatosSensores() {
-    Future.delayed(const Duration(seconds: 1), () {
-      setState(() {
-        _aguaValue = 25; // Ejemplo: valor de agua
-        _phValue = 9; // Ejemplo: valor de pH
-        _luzValue = 70; // Ejemplo: valor de luz
-      });
-    });
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -55,9 +26,7 @@ class _EstadoTorreState extends State<EstadoTorre> {
               onPressed:
                   () => Navigator.push(
                     context,
-                    MaterialPageRoute(
-                      builder: (context) => WaterLevel(data: _aguaValue),
-                    ),
+                    MaterialPageRoute(builder: (context) => WaterLevel()),
                   ),
               child: const Text("Nivel de Agua"),
             ),
@@ -66,9 +35,7 @@ class _EstadoTorreState extends State<EstadoTorre> {
               onPressed:
                   () => Navigator.push(
                     context,
-                    MaterialPageRoute(
-                      builder: (context) => pHLevel(pHValue: _phValue),
-                    ),
+                    MaterialPageRoute(builder: (context) => pHLevel()),
                   ),
               child: const Text("Nivel de pH"),
             ),
@@ -76,22 +43,13 @@ class _EstadoTorreState extends State<EstadoTorre> {
               onPressed:
                   () => Navigator.push(
                     context,
-                    MaterialPageRoute(
-                      builder: (context) => LightLevel(lightValue: _luzValue),
-                    ),
+                    MaterialPageRoute(builder: (context) => LightLevel()),
                   ),
               child: const Text("Nivel de Luz"),
             ),
           ],
         ),
       ),
-      // Botón para simular actualización
-      /*
-      floatingActionButton: FloatingActionButton(
-        onPressed: _cargarDatosSensores,
-        child: const Icon(Icons.refresh),
-      ),
-      */
     );
   }
 }
