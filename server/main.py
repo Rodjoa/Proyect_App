@@ -10,9 +10,15 @@ sensor_data = {}
 def receive_sensor_data():
     global sensor_data
     data = request.get_json()
+    water_level = data.get('WaterLevel')  #Verificar esta parte (variables no están siendo accedidas)
+    light = data.get('LightLevel')
+
     print("Datos recibidos:", data)
     sensor_data = data
-    return jsonify({"status": "ok"}), 200
+    return jsonify({"status": "received"}), 200
+
+
+
 
 #Endpoint para solicitar (GET) datos al server mediante la app movil
 @app.route('/sensor-data', methods=['GET'])

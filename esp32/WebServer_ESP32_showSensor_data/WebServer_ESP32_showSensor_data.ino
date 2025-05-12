@@ -1,13 +1,17 @@
 #include <WiFi.h>
 #include <HTTPClient.h>
 
-const char* ssid = "VTR-6216549";
-const char* password = "n4rdVvqptnkf";
+//const char* ssid = "VTR-6216549";
+//const char* password = "n4rdVvqptnkf";
+
+//nat
+const char* ssid = "HUAWEI Y8s";
+const char* password = "jubiloso123";
 
 // HTTP settings for LOCAL HOSTED Flask server
 const int portnum = 5000;
-IPAddress server_ip(192, 168, 0, 10);  // <-- IP de tu servidor Flask
-const char * server_url = "http://192.168.0.10:5000/sensor-data";  // <-- Dirección del servidor
+IPAddress server_ip(192, 168, 43, 147);  // <-- IP de tu servidor Flask
+const char * server_url = "http://192.168.43.147:5000/sensor-data";  // <-- Dirección del servidor
 
 // Humedad pins
 #define Humidity 34
@@ -26,6 +30,8 @@ void setup() {
 }
 
 void loop() {
+
+  /*
   if(digitalRead(Humidity) == 1) {
     Serial.println("It's dark!");
     gotHumidity = 0;
@@ -33,10 +39,12 @@ void loop() {
   else {
     Serial.println("Se detecta humedad");
     gotHumidity = 1;
-  }
+  }*/
+  gotHumidity = analogRead(Humidity);
+  Serial.println(gotHumidity);
 
   sendSensorData();
-  delay(7000);
+  delay(5000);
 }
 
 void startWifi() { 

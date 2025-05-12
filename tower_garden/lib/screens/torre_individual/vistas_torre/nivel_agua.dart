@@ -30,7 +30,7 @@ de cualquier tipo (dynamic).
   Future<void> fetchSensorData() async {
     try {
       final response = await http.get(
-        Uri.parse('http://192.168.0.10:5000/sensor-data'),
+        Uri.parse('http://192.168.43.147:5000/sensor-data'), //parametro de red
         //para emuladores android usar ip (OJO por si funciona no mas)
         //Uri.parse('http://10.0.2.2:5000/sensor-data'),
       );
@@ -63,10 +63,11 @@ de cualquier tipo (dynamic).
   //variable en base a valor agua que diga status (bajo, medio , lleno)
   //variable en base a status que diga qué path de imagen mostrar
   //Definimos funciones que retornan String y que reciben un parámetro
-  String _getWaterLevelStatus(int waterValue) {
-    if (waterValue < 30)
+  String _getWaterLevelStatus(double waterValue) {
+    //el sensor cuenta 0 max agua y 255 sin agua (mala precisión)
+    if (waterValue > 40)
       return "bajo";
-    else if (waterValue < 70)
+    else if (waterValue > 20)
       return "medio";
     else
       return "lleno";
@@ -108,7 +109,9 @@ de cualquier tipo (dynamic).
     }
 
     //final waterValue = SensorData!["humedad"] as int; //Op. de afirmación nula
-    final waterValue = (SensorData!["humedad"] ?? 0).toDouble();
+    final waterValue = (SensorData!["WaterLevel"] ?? 0).toDouble();
+    //Nos aseguramos que waterValue sea double sin importar si el JSON lo envía como int o algun valor raro
+
     final status = _getWaterLevelStatus(waterValue);
     final imagePath = _getImagePath(status);
     final message = _getMessage(status);
@@ -116,7 +119,7 @@ de cualquier tipo (dynamic).
     //PROBLEMA: NO PRINTEA
     print("Status: $status"); // Debe ser "bajo", "medio" o "lleno"
     print("Image path: $imagePath"); // Debe mostrar una ruta válida
-    print("Humedad: $SensorData");
+    print("Nivel de agua: $SensorData");
 
     return Scaffold(
       appBar: AppBar(
