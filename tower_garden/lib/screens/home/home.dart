@@ -9,33 +9,33 @@ class Home extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Tower Garden App')),
+      appBar: AppBar(
+        title: const Text('Tower Garden App'),
+        backgroundColor: const Color(0xFF1565C0), // Azul definido
+        foregroundColor: Colors.white,
+      ),
       body: Stack(
         children: [
           // Imagen de fondo
           Image.asset(
             'images/tower.webp',
-            fit: BoxFit.cover, // Esto asegura que la imagen cubra la pantalla
-            width: double.infinity, // Asegura que la imagen ocupe todo el ancho
-            height:
-                double.infinity, // Asegura que la imagen ocupe toda la altura
+            fit: BoxFit.cover,
+            width: double.infinity,
+            height: double.infinity,
           ),
-
           // Columna para los botones, alineados en el centro
           Center(
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: const [
-                //Llamamos a la instancia entregándole sus 3 parámetros
                 MiBoton(
                   botonTexto: 'Iniciar sesión',
-                  color: Colors.blue,
+                  color: Color(0xFF1565C0),
                   destino: Login(),
                 ),
-                //Llamamos a la instancia entregándole sus 3 parámetros
                 MiBoton(
                   botonTexto: 'Registrarse',
-                  color: Colors.blue,
+                  color: Color(0xFF43A047),
                   destino: Registro(),
                 ),
               ],

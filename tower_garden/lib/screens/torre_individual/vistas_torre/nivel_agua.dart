@@ -16,6 +16,9 @@ class _WaterLevelState extends State<WaterLevel> {
   //Implementamos initState() para pedir los datos al ingresar
 
   Map<String, dynamic>? SensorData;
+  bool _hasError =
+      false; // NUEVO: Bandera para saber si ocurrió un error al pedir los datos
+
   /*Sobre la variable SensorData:
 
 La función jsonDecode() toma esta cadena JSON y la convierte en un objeto 
@@ -30,7 +33,7 @@ de cualquier tipo (dynamic).
   Future<void> fetchSensorData() async {
     try {
       final response = await http.get(
-        Uri.parse('http://192.168.43.147:5000/sensor-data'), //parametro de red
+        Uri.parse('http://192.168.0.8:5000/sensor-data'), //parametro de red
         //para emuladores android usar ip (OJO por si funciona no mas)
         //Uri.parse('http://10.0.2.2:5000/sensor-data'),
       );
@@ -41,6 +44,8 @@ de cualquier tipo (dynamic).
           print(" Response 200: OK");
           SensorData = jsonDecode(response.body) as Map<String, dynamic>;
           print("SensorData recibido: $SensorData");
+          _hasError =
+              false; // NUEVO: aseguramos que no hay error si llegan datos
         });
       } else {
         // Si el servidor no retorna un 200, mostramos un error
@@ -49,6 +54,9 @@ de cualquier tipo (dynamic).
     } catch (e) {
       // Manejo de errores si ocurre algún problema al hacer la solicitud
       print("Error: $e");
+      setState(() {
+        _hasError = true; // NUEVO: señalamos que hubo un error
+      });
     }
   }
 
@@ -56,7 +64,7 @@ de cualquier tipo (dynamic).
   initState() {
     // ignore: avoid_print
     super.initState();
-    print("initState Called ***********");
+    print("initState Called");
     fetchSensorData();
   }
 
@@ -86,26 +94,72 @@ de cualquier tipo (dynamic).
     }
   }
 
-  String _getImagePath(String status) {
+  // NUEVO: función que devuelve un icono según el estado
+  IconData _getWaterIcon(String status) {
     switch (status) {
       case "bajo":
-        return 'images/LowLevelWater.jpeg';
+        return Icons.water_drop_outlined;
       case "medio":
-        return 'images/MediumLevelWater.jpeg';
+        return Icons.water_drop;
       case "lleno":
-        return 'images/HighLevelWater.jpeg';
+        return Icons.water;
       default:
-        return 'images/ErrorLeveWater.png'; // Opción segura
+        return Icons.error_outline; // Icono por defecto si hay error
+    }
+  }
+
+  // NUEVO: función que devuelve color según el estado
+  Color _getWaterColor(String status) {
+    switch (status) {
+      case "bajo":
+        return Colors.red;
+      case "medio":
+        return Colors.orange;
+      case "lleno":
+        return Colors.blue;
+      default:
+        return Colors.grey;
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    //En el build las variables de arriba se ponen como tipo final
-    //final status = _getWaterLevelStatus(widget.data);
+    // NUEVO: Si aún no llegan los datos mostramos un loading/error con AppBar y botón de regreso
     if (SensorData == null) {
       print("Valor de agua nulo");
-      return const Scaffold(body: Center(child: CircularProgressIndicator()));
+
+      return Scaffold(
+        appBar: AppBar(
+          title: Text("Nivel de agua"),
+          leading: IconButton(
+            icon: const Icon(Icons.arrow_back),
+            onPressed: () {
+              Navigator.pop(context); // Regresa a la pantalla anterior
+            },
+          ),
+        ),
+        body: Center(
+          child:
+              _hasError
+                  ? Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text('No se pudo obtener los datos'),
+                      SizedBox(height: 10),
+                      ElevatedButton(
+                        onPressed: () {
+                          setState(() {
+                            _hasError = false;
+                          });
+                          fetchSensorData(); // Reintentar obtener datos
+                        },
+                        child: Text('Reintentar'),
+                      ),
+                    ],
+                  )
+                  : CircularProgressIndicator(), // Indicador de carga mientras esperamos
+        ),
+      );
     }
 
     //final waterValue = SensorData!["humedad"] as int; //Op. de afirmación nula
@@ -113,23 +167,34 @@ de cualquier tipo (dynamic).
     //Nos aseguramos que waterValue sea double sin importar si el JSON lo envía como int o algun valor raro
 
     final status = _getWaterLevelStatus(waterValue);
-    final imagePath = _getImagePath(status);
+
     final message = _getMessage(status);
 
     //PROBLEMA: NO PRINTEA
     print("Status: $status"); // Debe ser "bajo", "medio" o "lleno"
-    print("Image path: $imagePath"); // Debe mostrar una ruta válida
     print("Nivel de agua: $SensorData");
 
     return Scaffold(
       appBar: AppBar(
         title: Text("Nivel de agua"), // No cambia con el estado
+
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          onPressed: () {
+            Navigator.pop(context); // Regresa a la pantalla anterior
+          },
+        ),
       ),
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Image.asset(imagePath),
+            Icon(
+              _getWaterIcon(status),
+              size: 100,
+              color: _getWaterColor(status),
+            ),
+
             Text('Nivel de agua: $waterValue'),
             Text(message),
           ],

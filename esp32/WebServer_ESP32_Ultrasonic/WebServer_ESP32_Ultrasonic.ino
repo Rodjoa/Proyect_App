@@ -1,27 +1,34 @@
 #include <WiFi.h>
 #include <HTTPClient.h>
 
-//const char* ssid = "VTR-6216549";
-//const char* password = "n4rdVvqptnkf";
+const char* ssid = "VTR-6216549";
+const char* password = "n4rdVvqptnkf";
 
-//nat
-const char* ssid = "HUAWEI Y8s";
-const char* password = "jubiloso123";
+//red celular
+//const char* ssid = "HUAWEI Y8s";
+//const char* password = "jubiloso123";
 
 // HTTP settings for LOCAL HOSTED Flask server
 const int portnum = 5000;
-IPAddress server_ip(192, 168, 43, 147);  // <-- IP de tu servidor Flask
-const char * server_url = "http://192.168.43.147:5000/sensor-data";  // <-- Dirección del servidor
+IPAddress server_ip(192, 168, 0, 8);  // <-- IP de tu servidor Flask
+const char * server_url = "http://192.168.0.8:5000/sensor-data";  // <-- Dirección del servidor
 
 
 //Nivel de luz: variables
-#define LightLevel 32
+#define LightLevel 13
 uint8_t gotLightLevel;
 
+//Nivel de batería: variables
+#define BatteryLevel 33
+//uint8_t gotBatteryLevel;
+float gotBatteryLevel;
+
+float lectura_volt;
+float volt;
 
 // Nivel de agua pins (sensor ultrasónico)
 #define WaterLevel_echo 34
-#define WaterLevel_trigger 19
+#define WaterLevel_trigger 14
 uint8_t gotWaterLevel;
 
 //Variables de calculo del nivel de agua
@@ -42,7 +49,7 @@ void setup() {
 void loop() {
 
   
-
+  //Nivel de Agua
   digitalWrite(WaterLevel_trigger, LOW);
   delayMicroseconds(2);
   digitalWrite(WaterLevel_trigger, HIGH);
@@ -54,8 +61,16 @@ void loop() {
   Serial.println(gotWaterLevel);
   delay(100);
 
+  //Nivel de Luz
   gotLightLevel = digitalRead(LightLevel);
   Serial.println(gotLightLevel);
+
+  //Nivel de Batería
+  lectura_volt = analogRead(BatteryLevel);
+  gotBatteryLevel = lectura_volt / 4095.0 * 3.3;
+  Serial.println(gotBatteryLevel);
+
+
 
   sendSensorData();
   delay(3000);
@@ -91,6 +106,9 @@ void setEspPins() {
   //Set pins nivel de luz
   pinMode(LightLevel, INPUT);
 
+  //Set pins nivel de batería
+  pinMode(BatteryLevel, INPUT);
+
 
 }
 
@@ -100,7 +118,9 @@ void sendSensorData(){
   http.addHeader("Content-Type", "application/json");
 
 
-  String requestData = "{\"WaterLevel\": " + String(gotWaterLevel) + ", \"LightLevel\": " + String(gotLightLevel)+"}";
+  String requestData =  "{\"WaterLevel\": " + String(gotWaterLevel) + 
+                       ", \"LightLevel\": " + String(gotLightLevel) + 
+                       ", \"BatteryLevel\": " + String(gotBatteryLevel) + "}";
 
   int httpCode = http.POST(requestData);
   String payload = http.getString(); //Guarda la respuesta del servidor (sirve para depurar el servidor o verificar)

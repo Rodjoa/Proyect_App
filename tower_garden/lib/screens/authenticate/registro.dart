@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:tower_garden/screens/home/home.dart';
 
 class Registro extends StatelessWidget {
   const Registro({super.key});
@@ -8,114 +7,124 @@ class Registro extends StatelessWidget {
   Widget build(BuildContext context) {
     const appTitle = 'Registrarse';
 
-    return MaterialApp(
-      title: appTitle,
-      home: Scaffold(
-        appBar: AppBar(title: const Text(appTitle)),
-        body: const MyCustomForm(),
+    return Scaffold(
+      backgroundColor: Colors.white,
+      appBar: AppBar(
+        title: const Text(appTitle),
+        backgroundColor: Colors.white,
+        foregroundColor: Colors.black,
+        elevation: 0,
+        leading: BackButton(
+          onPressed: () {
+            Navigator.pop(context);
+          },
+        ),
       ),
+      body: const MyCustomForm(),
     );
   }
 }
 
-// Create a Form widget.
 class MyCustomForm extends StatefulWidget {
   const MyCustomForm({super.key});
 
   @override
-  MyCustomFormState createState() {
-    return MyCustomFormState();
-  }
+  MyCustomFormState createState() => MyCustomFormState();
 }
 
-// Create a corresponding State class.
-// This class holds data related to the form.
 class MyCustomFormState extends State<MyCustomForm> {
-  // Create a global key that uniquely identifies the Form widget
-  // and allows validation of the form.
-  //
-  // Note: This is a GlobalKey<FormState>,
-  // not a GlobalKey<MyCustomFormState>.
   final _formKey = GlobalKey<FormState>();
 
   @override
   Widget build(BuildContext context) {
-    // Build a Form widget using the _formKey created above.
-    return Scaffold(
-      body: Center(
-        child: Form(
-          key: _formKey,
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              // Contenedor que limita el ancho del campo de texto
-              Container(
-                width: 300, // Define el ancho deseado para los campos de texto
-                child: TextFormField(
-                  decoration: const InputDecoration(
-                    labelText: 'Crear nombre de usuario',
+    return Center(
+      child: Form(
+        key: _formKey,
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Container(
+              width: 300,
+              child: TextFormField(
+                decoration: InputDecoration(
+                  filled: true,
+                  fillColor: Colors.white,
+                  labelText: 'Crear nombre de usuario',
+                  labelStyle: const TextStyle(color: Colors.black54),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(8.0),
                   ),
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Please enter some text';
-                    }
-                    return null;
-                  },
                 ),
+                style: const TextStyle(color: Colors.black),
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'Por favor ingrese un nombre de usuario';
+                  }
+                  return null;
+                },
               ),
-              const SizedBox(height: 16), // Espacio entre los campos
-              // Contenedor para el campo de contraseña con el mismo ancho limitado
-              Container(
-                width: 300, // El mismo ancho que el campo de usuario
-                child: TextFormField(
-                  decoration: const InputDecoration(
-                    labelText: 'Crear contraseña',
+            ),
+            const SizedBox(height: 16),
+            Container(
+              width: 300,
+              child: TextFormField(
+                obscureText: true,
+                decoration: InputDecoration(
+                  filled: true,
+                  fillColor: Colors.white,
+                  labelText: 'Crear contraseña',
+                  labelStyle: const TextStyle(color: Colors.black54),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(8.0),
                   ),
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Cree contraseña';
-                    }
-                    return null;
-                  },
                 ),
+                style: const TextStyle(color: Colors.black),
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'Por favor cree una contraseña';
+                  }
+                  return null;
+                },
               ),
+            ),
+            const SizedBox(height: 24),
+            ElevatedButton(
+              onPressed: () async {
+                if (_formKey.currentState!.validate()) {
+                  showDialog(
+                    context: context,
+                    barrierDismissible: false,
+                    builder: (BuildContext context) {
+                      return const Center(child: CircularProgressIndicator());
+                    },
+                  );
 
-              Padding(
-                padding: const EdgeInsets.symmetric(vertical: 16),
-                child: ElevatedButton(
-                  onPressed: () {
-                    // Validate returns true if the form is valid, or false otherwise.
-                    if (_formKey.currentState!.validate()) {
-                      // If the form is valid, display a snackbar. In the real world,
-                      // you'd often call a server or save the information in a database.
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(content: Text('Processing Data')),
-                      );
-                    }
-                  },
-                  child: const Text('Submit'),
+                  await Future.delayed(const Duration(seconds: 2));
+
+                  Navigator.of(context, rootNavigator: true).pop();
+                  Navigator.pop(context);
+                } else {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('Entrada inválida')),
+                  );
+                }
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.black,
+                foregroundColor: Colors.white,
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 40,
+                  vertical: 12,
+                ),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8),
                 ),
               ),
-              const SizedBox(height: 80), // Espacio entre los campos
-              // Contenedor para el campo de contraseña con el mismo ancho limitado
-              Padding(
-                padding: const EdgeInsets.symmetric(vertical: 16),
-                child: ElevatedButton(
-                  onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(builder: (context) => Home()),
-                    );
-                  },
-                  child: const Text('Volver'),
-                ),
-              ),
-            ],
-          ),
+              child: const Text('Registrarse'),
+            ),
+          ],
         ),
       ),
     );
   }
 }
-//ss

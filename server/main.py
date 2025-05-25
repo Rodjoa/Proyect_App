@@ -12,6 +12,7 @@ def receive_sensor_data():
     data = request.get_json()
     water_level = data.get('WaterLevel')  #Verificar esta parte (variables no están siendo accedidas)
     light = data.get('LightLevel')
+    battery = data.get('BatteryLevel')
 
     print("Datos recibidos:", data)
     sensor_data = data

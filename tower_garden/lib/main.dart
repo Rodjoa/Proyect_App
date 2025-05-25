@@ -1,22 +1,36 @@
 import 'package:flutter/material.dart';
 import 'package:tower_garden/screens/home/home.dart';
-//Parece que el directorio lib se omite en la ruta
-
-//import 'package:tower_garden/images/tower.webp';
 
 void main() => runApp(const MyApp());
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
-  // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      home: Home(), //aqui debo llamar al widget home
+      title: 'Tower Garden',
+      debugShowCheckedModeBanner: false,
+      theme: ThemeData(
+        useMaterial3: true,
+        colorScheme: ColorScheme.fromSeed(
+          seedColor: const Color(0xFF1565C0), // Azul base
+          primary: const Color(0xFF1565C0),
+          secondary: const Color(0xFF43A047), // Verde
+          background: Colors.white,
+        ),
+        scaffoldBackgroundColor: Colors.white,
+        fontFamily: 'Roboto',
+        textTheme: const TextTheme(
+          bodyLarge: TextStyle(color: Colors.black87),
+          bodyMedium: TextStyle(color: Colors.black87),
+        ),
+      ),
+      home: const Home(),
     );
   }
 }
+
  //Se introdujo una linea en pubspec.yaml  para
  //intentar introducir la imagen
  //Image.asset('images/tower.webp'),  comando simple sin ajuste 

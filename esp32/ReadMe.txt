@@ -1,0 +1,2 @@
+- Archivo de proyecto: Ultrasonic -> Sensor nivel de agua & Luz implementados.
+- Cambiar los parámetros de red ( ip, server) según wifi y password de la red en que esté conectado
