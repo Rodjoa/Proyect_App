@@ -1,7 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:tower_garden/screens/home/home.dart';
+import 'package:tower_garden/screens/torre_individual/vistas_torre/noti_service.dart';
 
-void main() => runApp(const MyApp());
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+
+  final notiService = NotiService();
+  await notiService.initNotification();
+
+  runApp(const MyApp());
+}
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});

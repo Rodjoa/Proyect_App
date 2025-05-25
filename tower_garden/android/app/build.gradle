@@ -1,57 +1,79 @@
 plugins {
     id 'com.android.application'
     id 'kotlin-android'
-    // El plugin de Flutter debe ir después de los plugins de Android y Kotlin.
     id 'dev.flutter.flutter-gradle-plugin'
-    id 'com.google.gms.google-services'
+    id 'com.google.gms.google-services'  // Plugin para Firebase
 }
 
 android {
     namespace 'com.example.tower_garden'
-    compileSdk flutter.compileSdkVersion
-    //ndkVersion flutter.ndkVersion
-    ndkVersion = '27.0.12077973'
+    compileSdkVersion 35
+    ndkVersion '27.0.12077973'  // Versión más estable actualmente
 
     compileOptions {
-        sourceCompatibility JavaVersion.VERSION_11
-        targetCompatibility JavaVersion.VERSION_11
+        coreLibraryDesugaringEnabled true
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
     }
 
     kotlinOptions {
-        jvmTarget = JavaVersion.VERSION_11.toString()
+        jvmTarget = "1.8"
     }
 
     defaultConfig {
         applicationId 'com.example.tower_garden'
-        //minSdk flutter.minSdkVersion
         minSdkVersion 23
-        targetSdk flutter.targetSdkVersion
-        versionCode flutter.versionCode
-        versionName flutter.versionName
+        targetSdkVersion 35
+        versionCode 1
+        versionName "1.0"
+        multiDexEnabled true  // Importante para apps con muchas dependencias
     }
 
     buildTypes {
         release {
             signingConfig signingConfigs.debug
+            minifyEnabled true  // Habilitar ofuscación y optimización
+            shrinkResources true  // Reducir tamaño eliminando recursos no usados
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+        debug {
+            debuggable true
         }
     }
+
+    // Opcional: Configuración para builds por flavor
+    //flavorDimensions "environment"
+    //productFlavors {
+    //    dev {
+    //        dimension "environment"
+    //        applicationIdSuffix ".dev"
+    //        versionNameSuffix "-dev"
+    //    }
+    //    prod {
+    //        dimension "environment"
+    //    }
+    //}
 }
 
 flutter {
     source '../..'
 }
 
-dependencies{
-    // Import the Firebase BoM
-    implementation platform('com.google.firebase:firebase-bom:33.12.0')
-    // Add the dependency for the Firebase SDK for Google Analytics
-    implementation("com.google.firebase:firebase-analytics")
-        // Otros SDKs de Firebase que podria usar:
-    implementation 'com.google.firebase:firebase-auth'         // Autenticación
-    implementation 'com.google.firebase:firebase-firestore'    // Firestore
-    implementation 'com.google.firebase:firebase-database'     // Realtime Database
-    implementation 'com.google.firebase:firebase-messaging'    // Notificaciones push
+dependencies {
+    // Desugaring para compatibilidad con nuevas APIs en versiones antiguas
+    coreLibraryDesugaring 'com.android.tools:desugar_jdk_libs:2.1.4'
+
+    // Firebase Bill of Materials (BOM) - Control centralizado de versiones
+    implementation platform('com.google.firebase:firebase-bom:33.1.0')  // Versión estable más reciente
+    
+    // Dependencias de Firebase (sin versión explícita, gestionada por BOM)
+    implementation 'com.google.firebase:firebase-analytics-ktx'  // Versión con Kotlin extensions
+    implementation 'com.google.firebase:firebase-auth-ktx'
+    implementation 'com.google.firebase:firebase-firestore-ktx'
+    implementation 'com.google.firebase:firebase-database-ktx'
+    implementation 'com.google.firebase:firebase-messaging-ktx'
+    
+    // Dependencias adicionales recomendadas
+    implementation 'androidx.multidex:multidex:2.0.1'  // Para superar límite de métodos
+    implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.3'  // Corrutinas
 }
-
-
-//apply plugin: 'com.google.gms.google-services' //añadida para q funcione firebase

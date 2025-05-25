@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:tower_garden/screens/home/home.dart';
 import 'package:tower_garden/screens/torre_individual/vistas_torre/estado_torre.dart';
+import 'package:tower_garden/screens/torre_individual/vistas_torre/noti_service.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'dart:async';
+
+import 'package:tower_garden/screens/torre_individual/vistas_torre/noti_service.dart';
 
 class WaterLevel extends StatefulWidget {
   const WaterLevel({super.key});
@@ -13,74 +16,76 @@ class WaterLevel extends StatefulWidget {
 }
 
 class _WaterLevelState extends State<WaterLevel> {
-  //Implementamos initState() para pedir los datos al ingresar
-
   Map<String, dynamic>? SensorData;
-  bool _hasError =
-      false; // NUEVO: Bandera para saber si ocurrió un error al pedir los datos
+  bool _hasError = false; // Bandera para errores al pedir datos
 
-  /*Sobre la variable SensorData:
-
-La función jsonDecode() toma esta cadena JSON y la convierte en un objeto 
-de tipo Map<String, dynamic>. Es decir, convierte los datos de JSON en un 
-Map de Dart donde las claves son de tipo String y los valores pueden ser 
-de cualquier tipo (dynamic).
-*/
+  Future<String>?
+  _statusFuture; // NUEVO: almacenamos el estado del agua una sola vez
 
   // Método para pedir los datos al servidor
-  //Future: Se usa cuando el valor llega más adelante
-  //<void>: Función fetchSensorData no retorna nada
   Future<void> fetchSensorData() async {
     try {
       final response = await http.get(
-        Uri.parse('http://192.168.0.8:5000/sensor-data'), //parametro de red
-        //para emuladores android usar ip (OJO por si funciona no mas)
-        //Uri.parse('http://10.0.2.2:5000/sensor-data'),
+        Uri.parse('http://192.168.0.8:5000/sensor-data'),
       );
 
       if (response.statusCode == 200) {
-        // Si la respuesta es 200 OK, parseamos los datos
         setState(() {
           print(" Response 200: OK");
           SensorData = jsonDecode(response.body) as Map<String, dynamic>;
           print("SensorData recibido: $SensorData");
-          _hasError =
-              false; // NUEVO: aseguramos que no hay error si llegan datos
+          _hasError = false;
         });
       } else {
-        // Si el servidor no retorna un 200, mostramos un error
         throw Exception('Failed to load sensor data');
       }
     } catch (e) {
-      // Manejo de errores si ocurre algún problema al hacer la solicitud
       print("Error: $e");
       setState(() {
-        _hasError = true; // NUEVO: señalamos que hubo un error
+        _hasError = true;
       });
     }
   }
 
   @override
-  initState() {
-    // ignore: avoid_print
+  void initState() {
     super.initState();
     print("initState Called");
-    fetchSensorData();
+
+    // NUEVO: Pedimos los datos y preparamos el futuro del estado del agua
+    fetchSensorData().then((_) {
+      final waterValue = (SensorData?["WaterLevel"] ?? 0).toDouble();
+      _statusFuture = _getWaterLevelStatus(
+        waterValue,
+      ); // Solo se calcula una vez
+      setState(
+        () {},
+      ); // Para que se reconstruya el widget con el nuevo _statusFuture
+    });
   }
 
-  //variable en base a valor agua que diga status (bajo, medio , lleno)
-  //variable en base a status que diga qué path de imagen mostrar
-  //Definimos funciones que retornan String y que reciben un parámetro
-  String _getWaterLevelStatus(double waterValue) {
-    //el sensor cuenta 0 max agua y 255 sin agua (mala precisión)
-    if (waterValue > 40)
-      return "bajo";
-    else if (waterValue > 20)
+  // Función que devuelve "bajo", "medio" o "lleno"
+  //Se define Future<String> porque incluye una llamada asincrónica:para las notificaciones (async/await)
+  Future<String> _getWaterLevelStatus(double waterValue) async {
+    if (waterValue > 40) {
+      try {
+        await NotiService().showNotification(
+          title: "Alerta de agua",
+          body: "Por favor, rellene el estanque",
+        );
+        return "bajo";
+      } catch (e) {
+        print('Error al mostrar notificación: $e');
+        return "bajo";
+      }
+    } else if (waterValue > 20) {
       return "medio";
-    else
+    } else {
       return "lleno";
+    }
   }
 
+  // Devuelve el mensaje a mostrar en pantalla
   String _getMessage(String status) {
     switch (status) {
       case "bajo":
@@ -90,11 +95,11 @@ de cualquier tipo (dynamic).
       case "lleno":
         return 'Estanque lleno';
       default:
-        return 'Error en la medición'; // Opción segura
+        return 'Error en la medición';
     }
   }
 
-  // NUEVO: función que devuelve un icono según el estado
+  // Devuelve el ícono según el estado
   IconData _getWaterIcon(String status) {
     switch (status) {
       case "bajo":
@@ -104,11 +109,11 @@ de cualquier tipo (dynamic).
       case "lleno":
         return Icons.water;
       default:
-        return Icons.error_outline; // Icono por defecto si hay error
+        return Icons.error_outline;
     }
   }
 
-  // NUEVO: función que devuelve color según el estado
+  // Devuelve color según el estado
   Color _getWaterColor(String status) {
     switch (status) {
       case "bajo":
@@ -124,17 +129,16 @@ de cualquier tipo (dynamic).
 
   @override
   Widget build(BuildContext context) {
-    // NUEVO: Si aún no llegan los datos mostramos un loading/error con AppBar y botón de regreso
-    if (SensorData == null) {
-      print("Valor de agua nulo");
-
+    // Si no llegaron aún los datos del sensor, mostramos loading o error
+    if (SensorData == null || _statusFuture == null) {
+      print("SensorData o statusFuture aún no listos");
       return Scaffold(
         appBar: AppBar(
           title: Text("Nivel de agua"),
           leading: IconButton(
             icon: const Icon(Icons.arrow_back),
             onPressed: () {
-              Navigator.pop(context); // Regresa a la pantalla anterior
+              Navigator.pop(context);
             },
           ),
         ),
@@ -151,54 +155,60 @@ de cualquier tipo (dynamic).
                           setState(() {
                             _hasError = false;
                           });
-                          fetchSensorData(); // Reintentar obtener datos
+                          fetchSensorData();
                         },
                         child: Text('Reintentar'),
                       ),
                     ],
                   )
-                  : CircularProgressIndicator(), // Indicador de carga mientras esperamos
+                  : CircularProgressIndicator(),
         ),
       );
     }
 
-    //final waterValue = SensorData!["humedad"] as int; //Op. de afirmación nula
     final waterValue = (SensorData!["WaterLevel"] ?? 0).toDouble();
-    //Nos aseguramos que waterValue sea double sin importar si el JSON lo envía como int o algun valor raro
-
-    final status = _getWaterLevelStatus(waterValue);
-
-    final message = _getMessage(status);
-
-    //PROBLEMA: NO PRINTEA
-    print("Status: $status"); // Debe ser "bajo", "medio" o "lleno"
-    print("Nivel de agua: $SensorData");
 
     return Scaffold(
       appBar: AppBar(
-        title: Text("Nivel de agua"), // No cambia con el estado
-
+        title: Text("Nivel de agua"),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
           onPressed: () {
-            Navigator.pop(context); // Regresa a la pantalla anterior
+            Navigator.pop(context);
           },
         ),
       ),
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(
-              _getWaterIcon(status),
-              size: 100,
-              color: _getWaterColor(status),
-            ),
+      body: FutureBuilder<String>(
+        future: _statusFuture, // Usamos el estado ya guardado
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return Center(child: CircularProgressIndicator());
+          } else if (snapshot.hasError || !snapshot.hasData) {
+            return Center(child: Text("Error al calcular estado del agua"));
+          }
 
-            Text('Nivel de agua: $waterValue'),
-            Text(message),
-          ],
-        ),
+          final status = snapshot.data!;
+          final message = _getMessage(status);
+
+          // Confirmación por consola
+          print("Status: $status");
+          print("Nivel de agua: $SensorData");
+
+          return Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(
+                  _getWaterIcon(status),
+                  size: 100,
+                  color: _getWaterColor(status),
+                ),
+                Text('Nivel de agua: $waterValue'),
+                Text(message),
+              ],
+            ),
+          );
+        },
       ),
     );
   }
