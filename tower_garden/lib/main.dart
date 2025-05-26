@@ -20,7 +20,7 @@ class MyApp extends StatelessWidget {
       title: 'Tower Garden',
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
-        useMaterial3: true,
+        useMaterial3: false,
         colorScheme: ColorScheme.fromSeed(
           seedColor: const Color(0xFF1565C0), // Azul base
           primary: const Color(0xFF1565C0),

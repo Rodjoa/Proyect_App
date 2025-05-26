@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class Registro extends StatelessWidget {
   const Registro({super.key});
@@ -34,6 +35,21 @@ class MyCustomForm extends StatefulWidget {
 
 class MyCustomFormState extends State<MyCustomForm> {
   final _formKey = GlobalKey<FormState>();
+  final TextEditingController _usernameController = TextEditingController();
+  final TextEditingController _passwordController = TextEditingController();
+
+  Future<void> _saveCredentials() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString('username', _usernameController.text);
+    await prefs.setString('password', _passwordController.text); //no usar en apps reales
+  }
+
+  @override
+  void dispose() {
+    _usernameController.dispose();
+    _passwordController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -46,6 +62,7 @@ class MyCustomFormState extends State<MyCustomForm> {
             Container(
               width: 300,
               child: TextFormField(
+                controller: _usernameController,
                 decoration: InputDecoration(
                   filled: true,
                   fillColor: Colors.white,
@@ -68,6 +85,7 @@ class MyCustomFormState extends State<MyCustomForm> {
             Container(
               width: 300,
               child: TextFormField(
+                controller: _passwordController,
                 obscureText: true,
                 decoration: InputDecoration(
                   filled: true,
@@ -99,6 +117,7 @@ class MyCustomFormState extends State<MyCustomForm> {
                     },
                   );
 
+                  await _saveCredentials();
                   await Future.delayed(const Duration(seconds: 2));
 
                   Navigator.of(context, rootNavigator: true).pop();

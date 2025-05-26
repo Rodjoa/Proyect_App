@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:tower_garden/screens/torre_individual/vistas_torre/estado_torre.dart';
 
 class Login extends StatelessWidget {
@@ -34,6 +35,23 @@ class MyCustomForm extends StatefulWidget {
 
 class MyCustomFormState extends State<MyCustomForm> {
   final _formKey = GlobalKey<FormState>();
+  final TextEditingController _usernameController = TextEditingController();
+  final TextEditingController _passwordController = TextEditingController();
+
+  @override
+  void dispose() {
+    _usernameController.dispose();
+    _passwordController.dispose();
+    super.dispose();
+  }
+
+  Future<bool> _validateCredentials(String inputUser, String inputPass) async {
+    final prefs = await SharedPreferences.getInstance();
+    final storedUser = prefs.getString('username');
+    final storedPass = prefs.getString('password');
+
+    return inputUser == storedUser && inputPass == storedPass;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -46,6 +64,7 @@ class MyCustomFormState extends State<MyCustomForm> {
             Container(
               width: 300,
               child: TextFormField(
+                controller: _usernameController,
                 decoration: const InputDecoration(
                   labelText: 'Ingrese nombre de usuario',
                   border: OutlineInputBorder(),
@@ -62,6 +81,7 @@ class MyCustomFormState extends State<MyCustomForm> {
             Container(
               width: 300,
               child: TextFormField(
+                controller: _passwordController,
                 obscureText: true,
                 decoration: const InputDecoration(
                   labelText: 'Ingrese contraseña',
@@ -88,16 +108,25 @@ class MyCustomFormState extends State<MyCustomForm> {
                       },
                     );
 
-                    await Future.delayed(const Duration(seconds: 2));
+                    final isValid = await _validateCredentials(
+                      _usernameController.text,
+                      _passwordController.text,
+                    );
 
                     Navigator.of(context, rootNavigator: true).pop();
-
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => const EstadoTorre(),
-                      ),
-                    );
+                    
+                    if (isValid) {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const EstadoTorre(),
+                        ),
+                      );
+                    } else {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(content: Text('Credenciales incorrectas')),
+                      );
+                    }
                   } else {
                     ScaffoldMessenger.of(context).showSnackBar(
                       const SnackBar(content: Text('Entrada inválida')),
@@ -108,7 +137,7 @@ class MyCustomFormState extends State<MyCustomForm> {
                   backgroundColor: const Color(0xFF1565C0),
                   foregroundColor: Colors.white,
                 ),
-                child: const Text('Submit'),
+                child: const Text('Iniciar sesión'),
               ),
             ),
             const SizedBox(height: 80),
