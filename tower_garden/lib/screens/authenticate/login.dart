@@ -1,30 +1,7 @@
+// login.dart
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:tower_garden/screens/torre_individual/vistas_torre/estado_torre.dart';
-
-class Login extends StatelessWidget {
-  const Login({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    const appTitle = 'Iniciar sesión';
-
-    return Scaffold(
-      backgroundColor: Colors.white,
-      appBar: AppBar(
-        title: const Text(appTitle),
-        backgroundColor: Color(0xFF1565C0),
-        foregroundColor: Colors.white,
-        leading: BackButton(
-          onPressed: () {
-            Navigator.pop(context);
-          },
-        ),
-      ),
-      body: const MyCustomForm(),
-    );
-  }
-}
 
 class MyCustomForm extends StatefulWidget {
   const MyCustomForm({super.key});
@@ -55,92 +32,75 @@ class MyCustomFormState extends State<MyCustomForm> {
 
   @override
   Widget build(BuildContext context) {
-    return Center(
+    return Container(
+      padding: const EdgeInsets.all(20),
+      width: 320,
+      decoration: BoxDecoration(
+        color: const Color.fromARGB(
+          255,
+          255,
+          255,
+          255,
+        ).withOpacity(0.9), //modificado
+        borderRadius: BorderRadius.circular(12),
+      ),
       child: Form(
         key: _formKey,
         child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Container(
-              width: 300,
-              child: TextFormField(
-                controller: _usernameController,
-                decoration: const InputDecoration(
-                  labelText: 'Ingrese nombre de usuario',
-                  border: OutlineInputBorder(),
-                ),
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Por favor ingrese un nombre de usuario';
-                  }
-                  return null;
-                },
+            const Text("Login", style: TextStyle(fontSize: 18)),
+            const SizedBox(height: 10),
+            TextFormField(
+              controller: _usernameController,
+              decoration: const InputDecoration(
+                labelText: 'Nombre de usuario',
+                border: OutlineInputBorder(),
               ),
+              validator:
+                  (value) =>
+                      value == null || value.isEmpty
+                          ? 'Por favor ingrese un nombre de usuario'
+                          : null,
             ),
             const SizedBox(height: 16),
-            Container(
-              width: 300,
-              child: TextFormField(
-                controller: _passwordController,
-                obscureText: true,
-                decoration: const InputDecoration(
-                  labelText: 'Ingrese contraseña',
-                  border: OutlineInputBorder(),
-                ),
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Ingrese contraseña';
-                  }
-                  return null;
-                },
+            TextFormField(
+              controller: _passwordController,
+              obscureText: true,
+              decoration: const InputDecoration(
+                labelText: 'Contraseña',
+                border: OutlineInputBorder(),
               ),
+              validator:
+                  (value) =>
+                      value == null || value.isEmpty
+                          ? 'Ingrese contraseña'
+                          : null,
             ),
-            Padding(
-              padding: const EdgeInsets.symmetric(vertical: 16),
-              child: ElevatedButton(
-                onPressed: () async {
-                  if (_formKey.currentState!.validate()) {
-                    showDialog(
-                      context: context,
-                      barrierDismissible: false,
-                      builder: (BuildContext dialogContext) {
-                        return const Center(child: CircularProgressIndicator());
-                      },
-                    );
+            const SizedBox(height: 16),
+            ElevatedButton(
+              onPressed: () async {
+                if (_formKey.currentState!.validate()) {
+                  final isValid = await _validateCredentials(
+                    _usernameController.text,
+                    _passwordController.text,
+                  );
 
-                    final isValid = await _validateCredentials(
-                      _usernameController.text,
-                      _passwordController.text,
+                  if (isValid) {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const EstadoTorre(),
+                      ),
                     );
-
-                    Navigator.of(context, rootNavigator: true).pop();
-                    
-                    if (isValid) {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => const EstadoTorre(),
-                        ),
-                      );
-                    } else {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(content: Text('Credenciales incorrectas')),
-                      );
-                    }
                   } else {
                     ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text('Entrada inválida')),
+                      const SnackBar(content: Text('Credenciales incorrectas')),
                     );
                   }
-                },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFF1565C0),
-                  foregroundColor: Colors.white,
-                ),
-                child: const Text('Iniciar sesión'),
-              ),
+                }
+              },
+              child: const Text('Iniciar sesión'),
             ),
-            const SizedBox(height: 80),
           ],
         ),
       ),
