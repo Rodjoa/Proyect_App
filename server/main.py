@@ -13,6 +13,7 @@ def receive_sensor_data():
     water_level = data.get('WaterLevel')  #Verificar esta parte (variables no están siendo accedidas)
     light = data.get('LightLevel')
     battery = data.get('BatteryLevel')
+    pH_level = data.get('pH_Level')
 
     print("Datos recibidos:", data)
     sensor_data = data

@@ -36,14 +36,11 @@ class _LightLevelState extends State<LightLevel> {
     fetchSensorData();
   }
 
-  //Esta parte por ahora considera solo dos casos por sensor digital binario
-
   String _getLightLevelStatus(double lightValue) {
     if (lightValue == 1)
       return "bajo";
     else if (lightValue == 0)
       return "alto";
-
     return "medio";
   }
 
@@ -63,11 +60,11 @@ class _LightLevelState extends State<LightLevel> {
   IconData _getLightIcon(String status) {
     switch (status) {
       case "bajo":
-        return Icons.wb_sunny_outlined; // Sol con poca luz
+        return Icons.wb_sunny_outlined;
       case "medio":
-        return Icons.wb_sunny; // Sol medio
+        return Icons.wb_sunny;
       case "alto":
-        return Icons.wb_sunny_rounded; // Sol brillante
+        return Icons.wb_sunny_rounded;
       default:
         return Icons.error_outline;
     }
@@ -88,78 +85,55 @@ class _LightLevelState extends State<LightLevel> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text("Nivel de luz"),
-        backgroundColor: Colors.white,
-        foregroundColor: Colors.black,
-        elevation: 1,
-      ),
-      backgroundColor: const Color(0xFFF5F5F5),
-      body:
-          sensorData == null
-              ? const Center(child: CircularProgressIndicator())
-              : Padding(
-                padding: const EdgeInsets.all(20.0),
-                child: Card(
-                  elevation: 6,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(16),
-                  ),
-                  child: Padding(
-                    padding: const EdgeInsets.all(24.0),
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Icon(
-                          _getLightIcon(
-                            _getLightLevelStatus(
-                              sensorData!["LightLevel"].toDouble(),
-                            ),
-                          ),
-                          size: 120,
-                          color: _getIconColor(
-                            _getLightLevelStatus(
-                              sensorData!["LightLevel"].toDouble(),
-                            ),
-                          ),
-                        ),
-                        const SizedBox(height: 20),
-                        Text(
-                          'Nivel actual de luz',
-                          style: TextStyle(
-                            fontSize: 20,
-                            fontWeight: FontWeight.w600,
-                            color: Colors.grey[800],
-                          ),
-                        ),
-                        const SizedBox(height: 8),
-                        Text(
-                          sensorData!["LightLevel"].toStringAsFixed(2),
-                          style: const TextStyle(
-                            fontSize: 32,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.black87,
-                          ),
-                        ),
-                        const SizedBox(height: 16),
-                        Text(
-                          _getMessage(
-                            _getLightLevelStatus(
-                              sensorData!["LightLevel"].toDouble(),
-                            ),
-                          ),
-                          style: const TextStyle(
-                            fontSize: 18,
-                            color: Colors.blueGrey,
-                          ),
-                          textAlign: TextAlign.center,
-                        ),
-                      ],
-                    ),
-                  ),
+    if (sensorData == null) {
+      return const Center(child: CircularProgressIndicator());
+    }
+
+    final status = _getLightLevelStatus(sensorData!["LightLevel"].toDouble());
+
+    return Padding(
+      padding: const EdgeInsets.all(20.0),
+      child: Card(
+        elevation: 6,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        child: Padding(
+          padding: const EdgeInsets.all(24.0),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(
+                _getLightIcon(status),
+                size: 120,
+                color: _getIconColor(status),
+              ),
+              const SizedBox(height: 20),
+              Text(
+                'Nivel actual de luz',
+                style: TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.w600,
+                  color: Colors.grey[800],
                 ),
               ),
+              const SizedBox(height: 8),
+              Text(
+                sensorData!["LightLevel"].toStringAsFixed(2),
+                style: const TextStyle(
+                  fontSize: 32,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.black87,
+                ),
+              ),
+              const SizedBox(height: 16),
+              Text(
+                _getMessage(status),
+                style: const TextStyle(fontSize: 18, color: Colors.blueGrey),
+                textAlign: TextAlign.center,
+              ),
+            ],
+          ),
+        ),
+      ),
     );
   }
 }
