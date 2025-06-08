@@ -1,47 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
-import 'dart:convert';
 
-class BatteryLevel extends StatefulWidget {
-  const BatteryLevel({super.key});
+// Ahora BatteryLevel es Stateless, porque ya no hace fetch por sí misma.
+class BatteryLevel extends StatelessWidget {
+  final Map<String, dynamic>? sensorData; // Datos que vienen desde el padre
 
-  @override
-  _BatteryLevelState createState() => _BatteryLevelState();
-}
-
-class _BatteryLevelState extends State<BatteryLevel> {
-  Map<String, dynamic>? sensorData;
-  bool _hasError = false; // para controlar error en la carga
-
-  Future<void> fetchSensorData() async {
-    try {
-      final response = await http.get(
-        Uri.parse('http://192.168.0.8:5000/sensor-data'),
-      );
-
-      if (response.statusCode == 200) {
-        setState(() {
-          sensorData = jsonDecode(response.body) as Map<String, dynamic>;
-          print("Parsed sensorData: $sensorData"); //hacemos debug
-          _hasError = false;
-        });
-      } else {
-        throw Exception('Error al cargar datos');
-      }
-    } catch (e) {
-      print("Error: $e");
-      setState(() {
-        _hasError = true;
-      });
-    }
-  }
-
-  @override
-  void initState() {
-    super.initState();
-    print("initState Called Battery");
-    fetchSensorData();
-  }
+  const BatteryLevel({super.key, required this.sensorData});
 
   // Función para obtener el icono según el nivel de batería
   IconData _getBatteryIcon(double batteryValue) {
@@ -85,26 +48,6 @@ class _BatteryLevelState extends State<BatteryLevel> {
   @override
   Widget build(BuildContext context) {
     // Manejo de error y carga
-    if (_hasError) {
-      return Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            const Text('No se pudo obtener los datos'),
-            const SizedBox(height: 10),
-            ElevatedButton(
-              onPressed: () {
-                setState(() {
-                  _hasError = false;
-                });
-                fetchSensorData();
-              },
-              child: const Text('Reintentar'),
-            ),
-          ],
-        ),
-      );
-    }
 
     if (sensorData == null) {
       return const Center(child: CircularProgressIndicator());

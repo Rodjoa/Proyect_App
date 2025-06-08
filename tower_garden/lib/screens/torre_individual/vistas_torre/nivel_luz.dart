@@ -1,46 +1,13 @@
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
-import 'dart:convert';
 
-class LightLevel extends StatefulWidget {
-  const LightLevel({super.key});
+class LightLevel extends StatelessWidget {
+  final Map<String, dynamic> sensorData; // Recibe datos desde el padre
 
-  @override
-  _LightLevelState createState() => _LightLevelState();
-}
+  const LightLevel({super.key, required this.sensorData});
 
-class _LightLevelState extends State<LightLevel> {
-  Map<String, dynamic>? sensorData;
-
-  Future<void> fetchSensorData() async {
-    try {
-      final response = await http.get(
-        Uri.parse('http://192.168.0.8:5000/sensor-data'),
-      );
-
-      if (response.statusCode == 200) {
-        setState(() {
-          sensorData = jsonDecode(response.body) as Map<String, dynamic>;
-        });
-      } else {
-        throw Exception('Error al cargar datos');
-      }
-    } catch (e) {
-      print("Error: $e");
-    }
-  }
-
-  @override
-  void initState() {
-    super.initState();
-    fetchSensorData();
-  }
-
-  String _getLightLevelStatus(double lightValue) {
-    if (lightValue == 1)
-      return "bajo";
-    else if (lightValue == 0)
-      return "alto";
+  String _getLightLevelStatus(double value) {
+    if (value == 1) return "bajo";
+    if (value == 0) return "alto";
     return "medio";
   }
 
@@ -85,11 +52,8 @@ class _LightLevelState extends State<LightLevel> {
 
   @override
   Widget build(BuildContext context) {
-    if (sensorData == null) {
-      return const Center(child: CircularProgressIndicator());
-    }
-
-    final status = _getLightLevelStatus(sensorData!["LightLevel"].toDouble());
+    final lightLevel = sensorData["LightLevel"].toDouble();
+    final status = _getLightLevelStatus(lightLevel);
 
     return Padding(
       padding: const EdgeInsets.all(20.0),
@@ -117,7 +81,7 @@ class _LightLevelState extends State<LightLevel> {
               ),
               const SizedBox(height: 8),
               Text(
-                sensorData!["LightLevel"].toStringAsFixed(2),
+                lightLevel.toStringAsFixed(2),
                 style: const TextStyle(
                   fontSize: 32,
                   fontWeight: FontWeight.bold,

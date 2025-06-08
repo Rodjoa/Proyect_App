@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:tower_garden/screens/authenticate/login.dart';
 import 'package:tower_garden/screens/authenticate/registro.dart';
-import 'package:tower_garden/widgets/botones_home.dart';
+//import 'package:tower_garden/widgets/botones_home.dart';
 
 class Home extends StatefulWidget {
   //Esta clase declara que existe un Widget con estado (1° clase: Qué es el widget)

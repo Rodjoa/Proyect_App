@@ -1,40 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
-import 'dart:convert';
+import 'package:tower_garden/screens/torre_individual/vistas_torre/noti_service.dart';
 
-class WaterLevel extends StatefulWidget {
-  const WaterLevel({super.key});
+class WaterLevel extends StatelessWidget {
+  final Map<String, dynamic> sensorData; // Recibe datos desde el padre
 
-  @override
-  _WaterLevelState createState() => _WaterLevelState();
-}
-
-class _WaterLevelState extends State<WaterLevel> {
-  Map<String, dynamic>? sensorData;
-
-  Future<void> fetchSensorData() async {
-    try {
-      final response = await http.get(
-        Uri.parse('http://192.168.0.8:5000/sensor-data'),
-      );
-
-      if (response.statusCode == 200) {
-        setState(() {
-          sensorData = jsonDecode(response.body) as Map<String, dynamic>;
-        });
-      } else {
-        throw Exception('Error al cargar datos');
-      }
-    } catch (e) {
-      print("Error: $e");
-    }
-  }
-
-  @override
-  void initState() {
-    super.initState();
-    fetchSensorData();
-  }
+  const WaterLevel({required this.sensorData, super.key});
 
   String _getWaterLevelStatus(double waterValue) {
     if (waterValue > 40)
@@ -86,11 +56,7 @@ class _WaterLevelState extends State<WaterLevel> {
 
   @override
   Widget build(BuildContext context) {
-    if (sensorData == null) {
-      return const Center(child: CircularProgressIndicator());
-    }
-
-    final waterValue = sensorData!["WaterLevel"].toDouble();
+    final waterValue = sensorData["WaterLevel"].toDouble();
     final status = _getWaterLevelStatus(waterValue);
 
     return Card(
@@ -106,7 +72,7 @@ class _WaterLevelState extends State<WaterLevel> {
               size: 120,
               color: _getWaterColor(status),
             ),
-            const SizedBox(height: 20),
+            const SizedBox(height: 15),
             Text(
               'Nivel actual de agua',
               style: TextStyle(

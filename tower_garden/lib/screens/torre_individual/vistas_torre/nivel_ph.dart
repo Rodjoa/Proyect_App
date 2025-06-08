@@ -1,40 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
-import 'dart:convert';
 
-class PhLevel extends StatefulWidget {
-  const PhLevel({super.key});
+class PhLevel extends StatelessWidget {
+  final Map<String, dynamic> sensorData; // Recibe datos desde el padre
 
-  @override
-  _PhLevelState createState() => _PhLevelState();
-}
-
-class _PhLevelState extends State<PhLevel> {
-  Map<String, dynamic>? sensorData;
-
-  Future<void> fetchSensorData() async {
-    try {
-      final response = await http.get(
-        Uri.parse('http://192.168.0.8:5000/sensor-data'),
-      );
-
-      if (response.statusCode == 200) {
-        setState(() {
-          sensorData = jsonDecode(response.body) as Map<String, dynamic>;
-        });
-      } else {
-        throw Exception('Error al cargar datos');
-      }
-    } catch (e) {
-      print("Error: $e");
-    }
-  }
-
-  @override
-  void initState() {
-    super.initState();
-    fetchSensorData();
-  }
+  const PhLevel({super.key, required this.sensorData});
 
   String _getPhStatus(double phValue) {
     if (phValue < 6.5) return "bajo";
@@ -83,12 +52,8 @@ class _PhLevelState extends State<PhLevel> {
 
   @override
   Widget build(BuildContext context) {
-    if (sensorData == null) {
-      return const Center(child: CircularProgressIndicator());
-    }
-
-    final phValue = sensorData!["pH_Level"].toDouble();
-    final status = _getPhStatus(phValue);
+    final phLevel = sensorData["pH_Level"].toDouble();
+    final status = _getPhStatus(phLevel);
 
     return Card(
       elevation: 6,
@@ -110,7 +75,7 @@ class _PhLevelState extends State<PhLevel> {
             ),
             const SizedBox(height: 8),
             Text(
-              phValue.toStringAsFixed(2),
+              phLevel.toStringAsFixed(2),
               style: const TextStyle(
                 fontSize: 32,
                 fontWeight: FontWeight.bold,
