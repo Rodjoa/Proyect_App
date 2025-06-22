@@ -27,13 +27,16 @@ float lectura_volt;
 float volt;
 
 // Nivel de agua pins (sensor ultrasónico)
-#define WaterLevel_echo 34
+#define WaterLevel_echo 32
 #define WaterLevel_trigger 14
 uint8_t gotWaterLevel;
 
 //Variables de calculo del nivel de agua
 float tiempo_espera;
 float distancia;
+
+//Variables de simulacion pH
+int pH_Level;
 
 void setEspPins();
 void startWifi();
@@ -70,10 +73,13 @@ void loop() {
   gotBatteryLevel = lectura_volt / 4095.0 * 3.3;
   Serial.println(gotBatteryLevel);
 
+  //Nivel de pH: Generamos n° aleatorio
+  pH_Level = random(0, 141)/10.0; //Genera un n° entre 0.0 y 14.0 con un decimal
+
 
 
   sendSensorData();
-  delay(3000);
+  delay(1800);
 }
 
 void startWifi() { 
@@ -118,9 +124,11 @@ void sendSensorData(){
   http.addHeader("Content-Type", "application/json");
 
 
-  String requestData =  "{\"WaterLevel\": " + String(gotWaterLevel) + 
-                       ", \"LightLevel\": " + String(gotLightLevel) + 
-                       ", \"BatteryLevel\": " + String(gotBatteryLevel) + "}";
+  String requestData =  "{\"WaterLevel\": "   + String(gotWaterLevel) + 
+                       ", \"LightLevel\": "   + String(gotLightLevel) + 
+                       ", \"BatteryLevel\": " + String(gotBatteryLevel) + 
+                       ",\"pH_Level\": "      + String(pH_Level) +  
+                       "}";
 
   int httpCode = http.POST(requestData);
   String payload = http.getString(); //Guarda la respuesta del servidor (sirve para depurar el servidor o verificar)
