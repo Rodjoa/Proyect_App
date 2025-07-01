@@ -35,7 +35,7 @@ class _EstadoTorreState extends State<EstadoTorre> {
 
     try {
       final response = await http
-          .get(Uri.parse('http://192.168.0.8:5000/sensor-data'))
+          .get(Uri.parse('http://192.168.0.18:5000/sensor-data'))
           .timeout(const Duration(seconds: 10));
 
       if (response.statusCode == 200) {
@@ -141,9 +141,9 @@ class _EstadoTorreState extends State<EstadoTorre> {
                   MaterialPageRoute(builder: (context) => const AuthGate()),
                 );
               }
-      },
-    ),
-  ],
+            },
+          ),
+        ],
       ),
       body: Container(
         width: double.infinity,

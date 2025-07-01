@@ -10,13 +10,13 @@ const char* password = "n4rdVvqptnkf";
 
 // HTTP settings for LOCAL HOSTED Flask server
 const int portnum = 5000;
-IPAddress server_ip(192, 168, 0, 8);  // <-- IP de tu servidor Flask
-const char * server_url = "http://192.168.0.8:5000/sensor-data";  // <-- Dirección del servidor
+IPAddress server_ip(192, 168, 0, 18);  // <-- IP de tu servidor Flask CAMBIA ENTRE 8 Y 18 en la casa
+const char * server_url = "http://192.168.0.18:5000/sensor-data";  // <-- Dirección del servidor
 
 
 //Nivel de luz: variables
 #define LightLevel 13
-uint8_t gotLightLevel;
+int gotLightLevel;   //antes era uint8_t
 
 //Nivel de batería: variables
 #define BatteryLevel 33
@@ -36,7 +36,7 @@ float tiempo_espera;
 float distancia;
 
 //Variables de simulacion pH
-int pH_Level;
+float pH_Level;   //INT O FLOAT ?
 
 void setEspPins();
 void startWifi();
@@ -124,11 +124,11 @@ void sendSensorData(){
   http.addHeader("Content-Type", "application/json");
 
 
-  String requestData =  "{\"WaterLevel\": "   + String(gotWaterLevel) + 
-                       ", \"LightLevel\": "   + String(gotLightLevel) + 
-                       ", \"BatteryLevel\": " + String(gotBatteryLevel) + 
-                       ",\"pH_Level\": "      + String(pH_Level) +  
-                       "}";
+  String requestData =  "{\"water_level\": "   + String(gotWaterLevel) + 
+                     ", \"light_level\": "   + String(gotLightLevel) + 
+                     ", \"battery_level\": " + String(gotBatteryLevel) + 
+                     ", \"ph_level\": "      + String(pH_Level) +  
+                     "}";
 
   int httpCode = http.POST(requestData);
   String payload = http.getString(); //Guarda la respuesta del servidor (sirve para depurar el servidor o verificar)

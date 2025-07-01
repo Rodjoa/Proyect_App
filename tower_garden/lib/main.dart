@@ -43,9 +43,9 @@ class MyApp extends StatelessWidget {
   }
 }
 
- //Se introdujo una linea en pubspec.yaml  para
- //intentar introducir la imagen
- //Image.asset('images/tower.webp'),  comando simple sin ajuste 
+//Se introdujo una linea en pubspec.yaml  para
+//intentar introducir la imagen
+//Image.asset('images/tower.webp'),  comando simple sin ajuste
 
 class AuthGate extends StatelessWidget {
   const AuthGate({super.key});
