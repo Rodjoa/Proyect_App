@@ -56,7 +56,13 @@ class WaterLevel extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final waterValue = sensorData["WaterLevel"].toDouble();
+    //final waterValue = sensorData["WaterLevel"].toDouble();
+    //remedio abajo
+    final waterValue =
+        sensorData["water_level"] != null
+            ? sensorData["water_level"].toDouble()
+            : 0.0;
+
     final status = _getWaterLevelStatus(waterValue);
 
     return Card(

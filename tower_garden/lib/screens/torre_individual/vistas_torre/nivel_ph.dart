@@ -50,9 +50,20 @@ class PhLevel extends StatelessWidget {
     }
   }
 
+  //Funcion añadida para asegurar el null
+  double safeDouble(dynamic value) {
+    if (value == null) return 0.0;
+    if (value is double) return value;
+    if (value is int) return value.toDouble();
+    if (value is String) return double.tryParse(value) ?? 0.0;
+    return 0.0; // por si llega otro tipo inesperado
+  }
+  //fin funcion
+
   @override
   Widget build(BuildContext context) {
-    final phLevel = sensorData["pH_Level"].toDouble();
+    //final phLevel = sensorData["ph_Level"].toDouble();
+    final phLevel = safeDouble(sensorData["ph_level"]); // ✅ corregido y seguro
     final status = _getPhStatus(phLevel);
 
     return Card(

@@ -45,15 +45,40 @@ class BatteryLevel extends StatelessWidget {
     }
   }
 
+  //Funcion añadida para asegurar el null
+  double safeDouble(dynamic value) {
+    if (value == null) return 0.0;
+    if (value is double) return value;
+    if (value is int) return value.toDouble();
+    if (value is String) return double.tryParse(value) ?? 0.0;
+    return 0.0; // por si llega otro tipo inesperado
+  }
+  //fin funcion
+
   @override
   Widget build(BuildContext context) {
     // Manejo de error y carga
-
-    if (sensorData == null) {
+    /*
+    if (sensorData == null) {    //Funcion para progress con valores nulos
       return const Center(child: CircularProgressIndicator());
     }
+    */
 
-    final double batteryValue = sensorData!["BatteryLevel"]?.toDouble() ?? 0;
+    //Capturamos los nulos y dejamos con las mismas minusculas que el server
+    /*
+    final batteryValue =
+        sensorData?["battery_level"] != null
+            ? sensorData!["battery_level"].toDouble()
+            : 0.0;
+
+    final icon = _getBatteryIcon(batteryValue);
+    final color = _getBatteryColor(batteryValue);
+    final message = _getBatteryMessage(batteryValue);
+    */
+    //intento arreglo
+
+    final batteryValue = safeDouble(sensorData?["battery_level"] ?? 0.0);
+
     final icon = _getBatteryIcon(batteryValue);
     final color = _getBatteryColor(batteryValue);
     final message = _getBatteryMessage(batteryValue);

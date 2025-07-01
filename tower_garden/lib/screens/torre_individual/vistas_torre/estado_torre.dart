@@ -108,6 +108,7 @@ class _EstadoTorreState extends State<EstadoTorre> {
     } else if (sensorData == null) {
       content = const Center(child: Text('No hay datos disponibles'));
     } else {
+      print("Claves disponibles en sensorData: ${sensorData!.keys}");
       content = ListView(
         padding: const EdgeInsets.all(16),
         children: [
