@@ -112,11 +112,11 @@ def get_sensor_data():
         return jsonify({"error": "Error de conexión con la base de datos"}), 500
 
     try:
-        response = supabase.table(TABLE_NAME)\
-                         .select("*")\
-                         .order("created_at", desc=True)\
-                         .limit(1)\
-                         .execute()
+        response = supabase.table(TABLE_NAME) \
+                        .select("*") \
+                        .order("created_at", desc=True) \
+                        .limit(1) \
+                        .execute() 
 
         if not response.data:
             return jsonify({
@@ -132,6 +132,42 @@ def get_sensor_data():
             "error": "Error al recuperar datos",
             "details": str(e)
         }), 500
+    
+
+#ENDPOINT DATOS HISTORICOS (60)
+
+@app.route('/sensor-data/historical', methods=['GET'])
+def get_sensor_data_hist():
+    if supabase is None:
+        return jsonify({"error": "Error de conexión con la base de datos"}), 500
+
+    try:
+        response = supabase.table(TABLE_NAME) \
+                        .select("ph_level, created_at") \
+                        .order("created_at", desc=True) \
+                        .limit(60) \
+                        .execute()
+
+        if not response.data:
+            return jsonify({
+                "error": "No hay datos disponibles",
+                "suggestion": f"Verifique que la tabla '{TABLE_NAME}' existe y contiene registros"
+            }), 404
+            
+        return jsonify(response.data), 200
+    
+    except Exception as e:
+        print(f"Error al recuperar datos: {str(e)}")
+        return jsonify({
+            "error": "Error al recuperar datos",
+            "details": str(e)
+        }), 500
+
+
+
+
+
+
 
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0', port=5000)
