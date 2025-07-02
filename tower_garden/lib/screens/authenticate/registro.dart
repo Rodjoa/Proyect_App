@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+//import 'package:shared_preferences/shared_preferences.dart';
 
 class RegistroForm extends StatefulWidget {
   const RegistroForm({super.key});
@@ -10,21 +11,29 @@ class RegistroForm extends StatefulWidget {
 
 class _RegistroFormState extends State<RegistroForm> {
   final _formKey = GlobalKey<FormState>();
-  final TextEditingController _usernameController = TextEditingController();
+  final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
 
-  Future<void> _saveCredentials() async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setString('username', _usernameController.text);
-    await prefs.setString(
-      'password',
-      _passwordController.text,
-    ); // No guardar contraseñas así en apps reales
+  Future<void> _registerWithFirebase() async {
+  try {
+    await FirebaseAuth.instance.createUserWithEmailAndPassword(
+      email: _emailController.text.trim(),
+      password: _passwordController.text,
+    );
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('Registro exitoso')),
+    );
+    Navigator.pop(context);
+  } catch (e) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text('Error: $e')),
+    );
   }
+}
 
   @override
   void dispose() {
-    _usernameController.dispose();
+    _emailController.dispose();
     _passwordController.dispose();
     super.dispose();
   }
@@ -48,16 +57,21 @@ class _RegistroFormState extends State<RegistroForm> {
                 const Text('Registrarse', style: TextStyle(fontSize: 18)),
                 const SizedBox(height: 10),
                 TextFormField(
-                  controller: _usernameController,
+                  controller: _emailController,
+                  keyboardType: TextInputType.emailAddress,
                   decoration: const InputDecoration(
-                    labelText: 'Nombre de usuario',
+                    labelText: 'correo electrónico',
                     border: OutlineInputBorder(),
                   ),
                   validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Por favor ingrese un nombre de usuario';
-                    }
-                    return null;
+                  if (value == null || value.isEmpty) {
+                    return 'Por favor ingrese un correo';
+                  }
+                  final emailRegex = RegExp(r'^[^@\s]+@[^@\s]+\.[^@\s]+$');
+                  if (!emailRegex.hasMatch(value)) {
+                    return 'Por favor ingrese un correo válido';
+                  }
+                  return null;
                   },
                 ),
                 const SizedBox(height: 16),
@@ -89,16 +103,16 @@ class _RegistroFormState extends State<RegistroForm> {
                         },
                       );
 
-                      await _saveCredentials();
+                      await _registerWithFirebase();
                       await Future.delayed(const Duration(seconds: 2));
 
                       if (context.mounted) {
                         Navigator.of(context, rootNavigator: true).pop();
                       }
 
-                      ScaffoldMessenger.of(context).showSnackBar(
+                      /*ScaffoldMessenger.of(context).showSnackBar(
                         const SnackBar(content: Text('Registro exitoso')),
-                      );
+                      );*/
                     }
                   },
                   child: const Text('Registrarse'),

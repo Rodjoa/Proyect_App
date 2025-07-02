@@ -50,9 +50,20 @@ class LightLevel extends StatelessWidget {
     }
   }
 
+  //Funcion añadida para asegurar el null
+  double safeDouble(dynamic value) {
+    if (value == null) return 0.0;
+    if (value is double) return value;
+    if (value is int) return value.toDouble();
+    if (value is String) return double.tryParse(value) ?? 0.0;
+    return 0.0; // por si llega otro tipo inesperado
+  }
+  //fin funcion
+
   @override
   Widget build(BuildContext context) {
-    final lightLevel = sensorData["LightLevel"].toDouble();
+    //final lightLevel = sensorData["light_level"].toDouble();
+    final lightLevel = safeDouble(sensorData["light_level"]); //trato de null
     final status = _getLightLevelStatus(lightLevel);
 
     return Padding(

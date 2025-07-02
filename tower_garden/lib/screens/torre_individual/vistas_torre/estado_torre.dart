@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:tower_garden/main.dart';
 import 'nivel_agua.dart';
 import 'nivel_ph.dart';
 import 'nivel_luz.dart';
@@ -33,7 +35,7 @@ class _EstadoTorreState extends State<EstadoTorre> {
 
     try {
       final response = await http
-          .get(Uri.parse('http://192.168.0.8:5000/sensor-data'))
+          .get(Uri.parse('http://192.168.0.18:5000/sensor-data'))
           .timeout(const Duration(seconds: 10));
 
       if (response.statusCode == 200) {
@@ -106,6 +108,7 @@ class _EstadoTorreState extends State<EstadoTorre> {
     } else if (sensorData == null) {
       content = const Center(child: Text('No hay datos disponibles'));
     } else {
+      print("Claves disponibles en sensorData: ${sensorData!.keys}");
       content = ListView(
         padding: const EdgeInsets.all(16),
         children: [
@@ -127,6 +130,21 @@ class _EstadoTorreState extends State<EstadoTorre> {
         title: const Text("Estado de la Torre"),
         backgroundColor: const Color(0xFF1565C0),
         foregroundColor: Colors.white,
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.logout),
+            tooltip: 'Cerrar sesión',
+            onPressed: () async {
+              await FirebaseAuth.instance.signOut();
+              if (context.mounted) {
+                Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(builder: (context) => const AuthGate()),
+                );
+              }
+            },
+          ),
+        ],
       ),
       body: Container(
         width: double.infinity,

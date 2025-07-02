@@ -46,25 +46,25 @@ class _HomeState extends State<Home> {
                   const SizedBox(height: 250), //60
                   ElevatedButton(
                     onPressed: () => toggleForm("login"),
-                    child: const Text("Iniciar sesión"),
                     style: ElevatedButton.styleFrom(
                       backgroundColor: const Color(0xFF1565C0),
                       foregroundColor: Colors.white,
                     ),
+                    child: const Text("Iniciar sesión"),
                   ),
                   ElevatedButton(
                     onPressed: () => toggleForm("registro"),
-                    child: const Text("Registrarse"),
                     style: ElevatedButton.styleFrom(
                       backgroundColor: const Color(0xFF1565C0),
                       foregroundColor: Colors.white,
                     ),
+                    child: const Text("Registrarse"),
                   ),
                   const SizedBox(height: 30),
 
                   // Mostrar formulario según lo que se seleccione
                   if (formToShow == "login")
-                    const MyCustomForm(), // reusamos el widget del login
+                    const LoginForm(), // reusamos el widget del login
                   if (formToShow == "registro") const RegistroForm(),
                 ],
               ),
